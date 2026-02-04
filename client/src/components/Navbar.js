@@ -37,7 +37,7 @@ const Navbar = () => {
           {/* Logo + Company Name */}
           <Link to="/" className="flex items-center space-x-3 group">
             <motion.img 
-              src="/logo.png" 
+              src="/images/logo.png" 
               alt="Martianblue Cyber Defense" 
               className="h-12 w-auto"
               style={{
