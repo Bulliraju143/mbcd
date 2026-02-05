@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 
 const Home = () => {
   const canvasRef = useRef(null);
+  const marsCanvasRef = useRef(null);
   const videoRef = useRef(null);
   const videoContainerRef = useRef(null);
   const [videoError, setVideoError] = useState(false);
@@ -95,6 +96,21 @@ const Home = () => {
 
   // Toggle video play/pause on click
   const handleVideoClick = () => {
+    const video = videoRef.current;
+    if (video && !videoError) {
+      if (video.paused) {
+        video.play();
+        setIsVideoPlaying(true);
+      } else {
+        video.pause();
+        setIsVideoPlaying(false);
+      }
+    }
+  };
+
+  // Toggle play/pause button with stopPropagation
+  const togglePlayPause = (e) => {
+    e.stopPropagation(); // Prevent video click handler
     const video = videoRef.current;
     if (video && !videoError) {
       if (video.paused) {
@@ -257,6 +273,378 @@ const Home = () => {
     };
   }, []);
 
+  // MARS-THEMED ANIMATED BACKGROUND - Subtle and Realistic
+  useEffect(() => {
+    const canvas = marsCanvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    let animationFrameId;
+    
+    const resizeCanvas = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+    resizeCanvas();
+
+    // Stars for space background
+    class Star {
+      constructor() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.size = Math.random() * 2;
+        this.brightness = Math.random();
+        this.twinkleSpeed = 0.02 + Math.random() * 0.03;
+        this.twinklePhase = Math.random() * Math.PI * 2;
+      }
+
+      update() {
+        this.twinklePhase += this.twinkleSpeed;
+      }
+
+      draw() {
+        const twinkle = Math.sin(this.twinklePhase) * 0.5 + 0.5;
+        const opacity = this.brightness * twinkle;
+        
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(200, 220, 255, ${opacity * 0.8})`;
+        ctx.shadowBlur = this.size * 2;
+        ctx.shadowColor = `rgba(150, 200, 255, ${opacity * 0.6})`;
+        ctx.fill();
+        ctx.shadowBlur = 0;
+      }
+    }
+
+    // Nebula clouds on sides
+    class NebulaCloud {
+      constructor(side) {
+        this.side = side;
+        if (side === 'left') {
+          this.x = Math.random() * (canvas.width * 0.25);
+        } else {
+          this.x = canvas.width - Math.random() * (canvas.width * 0.25);
+        }
+        this.y = Math.random() * canvas.height;
+        this.size = 150 + Math.random() * 200;
+        this.opacity = 0.15 + Math.random() * 0.15;
+        this.pulsePhase = Math.random() * Math.PI * 2;
+        this.pulseSpeed = 0.005 + Math.random() * 0.005;
+        this.driftSpeed = (Math.random() - 0.5) * 0.1;
+        this.color = this.getNebulaColor();
+      }
+
+      getNebulaColor() {
+        const colors = [
+          { r: 0, g: 150, b: 255 },    // Cyan blue
+          { r: 0, g: 200, b: 255 },    // Light cyan
+          { r: 100, g: 180, b: 255 },  // Soft blue
+          { r: 50, g: 150, b: 200 },   // Deep cyan
+        ];
+        return colors[Math.floor(Math.random() * colors.length)];
+      }
+
+      update() {
+        this.pulsePhase += this.pulseSpeed;
+        this.y += this.driftSpeed;
+        
+        // Wrap around vertically
+        if (this.y < -this.size) this.y = canvas.height + this.size;
+        if (this.y > canvas.height + this.size) this.y = -this.size;
+      }
+
+      draw() {
+        const pulse = Math.sin(this.pulsePhase) * 0.3 + 1;
+        const size = this.size * pulse;
+        
+        const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, size);
+        gradient.addColorStop(0, `rgba(${this.color.r}, ${this.color.g}, ${this.color.b}, ${this.opacity * 0.4})`);
+        gradient.addColorStop(0.5, `rgba(${this.color.r}, ${this.color.g}, ${this.color.b}, ${this.opacity * 0.2})`);
+        gradient.addColorStop(1, `rgba(${this.color.r}, ${this.color.g}, ${this.color.b}, 0)`);
+        
+        ctx.fillStyle = gradient;
+        ctx.fillRect(this.x - size, this.y - size, size * 2, size * 2);
+      }
+    }
+
+    // Shooting stars
+    class ShootingStar {
+      constructor() {
+        const side = Math.random();
+        if (side < 0.5) {
+          this.x = Math.random() * (canvas.width * 0.3);
+        } else {
+          this.x = canvas.width - Math.random() * (canvas.width * 0.3);
+        }
+        this.y = Math.random() * canvas.height * 0.5;
+        this.length = 30 + Math.random() * 50;
+        this.speed = 3 + Math.random() * 4;
+        this.angle = Math.PI / 4 + (Math.random() - 0.5) * 0.5;
+        this.opacity = 1;
+        this.decay = 0.015;
+      }
+
+      update() {
+        this.x += Math.cos(this.angle) * this.speed;
+        this.y += Math.sin(this.angle) * this.speed;
+        this.opacity -= this.decay;
+      }
+
+      draw() {
+        if (this.opacity <= 0) return;
+        
+        const endX = this.x - Math.cos(this.angle) * this.length;
+        const endY = this.y - Math.sin(this.angle) * this.length;
+        
+        const gradient = ctx.createLinearGradient(this.x, this.y, endX, endY);
+        gradient.addColorStop(0, `rgba(200, 230, 255, ${this.opacity * 0.9})`);
+        gradient.addColorStop(1, `rgba(100, 180, 255, 0)`);
+        
+        ctx.strokeStyle = gradient;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(this.x, this.y);
+        ctx.lineTo(endX, endY);
+        ctx.stroke();
+      }
+
+      isDead() {
+        return this.opacity <= 0;
+      }
+    }
+
+    // Subtle Mars dust particles floating from sides
+    class MarsDust {
+      constructor() {
+        const side = Math.random();
+        if (side < 0.25) {
+          this.x = -10;
+          this.y = Math.random() * canvas.height;
+          this.vx = 0.3 + Math.random() * 0.3;
+          this.vy = (Math.random() - 0.5) * 0.2;
+        } else if (side < 0.5) {
+          this.x = canvas.width + 10;
+          this.y = Math.random() * canvas.height;
+          this.vx = -(0.3 + Math.random() * 0.3);
+          this.vy = (Math.random() - 0.5) * 0.2;
+        } else if (side < 0.75) {
+          this.x = Math.random() * canvas.width;
+          this.y = -10;
+          this.vx = (Math.random() - 0.5) * 0.2;
+          this.vy = 0.3 + Math.random() * 0.3;
+        } else {
+          this.x = Math.random() * canvas.width;
+          this.y = canvas.height + 10;
+          this.vx = (Math.random() - 0.5) * 0.2;
+          this.vy = -(0.3 + Math.random() * 0.3);
+        }
+        
+        this.size = Math.random() * 1.5 + 0.5;
+        this.opacity = Math.random() * 0.3 + 0.1;
+        this.life = 0;
+        this.maxLife = 600 + Math.random() * 400;
+      }
+
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+        this.life++;
+        
+        // Gentle fade in and out
+        if (this.life < 100) {
+          this.opacity = (this.life / 100) * 0.3;
+        } else if (this.life > this.maxLife - 100) {
+          this.opacity = ((this.maxLife - this.life) / 100) * 0.3;
+        }
+      }
+
+      draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        
+        // Subtle orange-red Mars dust color
+        const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size);
+        gradient.addColorStop(0, `rgba(255, 140, 80, ${this.opacity})`);
+        gradient.addColorStop(1, `rgba(200, 100, 60, ${this.opacity * 0.5})`);
+        
+        ctx.fillStyle = gradient;
+        ctx.fill();
+      }
+
+      isDead() {
+        return this.life >= this.maxLife || 
+               this.x < -20 || this.x > canvas.width + 20 ||
+               this.y < -20 || this.y > canvas.height + 20;
+      }
+    }
+
+    // Distant Mars-like celestial bodies in corners (very subtle)
+    class DistantMars {
+      constructor(corner) {
+        this.corner = corner;
+        
+        switch(corner) {
+          case 'top-left':
+            this.x = 80;
+            this.y = 120;
+            break;
+          case 'bottom-right':
+            this.x = canvas.width - 80;
+            this.y = canvas.height - 120;
+            break;
+          case 'top-right':
+            this.x = canvas.width - 100;
+            this.y = 150;
+            break;
+          case 'bottom-left':
+            this.x = 100;
+            this.y = canvas.height - 150;
+            break;
+        }
+        
+        this.baseX = this.x;
+        this.baseY = this.y;
+        this.size = 25 + Math.random() * 15;
+        this.pulsePhase = Math.random() * Math.PI * 2;
+        this.floatPhase = Math.random() * Math.PI * 2;
+      }
+
+      update() {
+        this.pulsePhase += 0.008;
+        this.floatPhase += 0.005;
+        
+        // Gentle floating motion
+        this.x = this.baseX + Math.sin(this.floatPhase) * 3;
+        this.y = this.baseY + Math.cos(this.floatPhase * 1.3) * 3;
+      }
+
+      draw() {
+        const pulse = Math.sin(this.pulsePhase) * 0.05 + 1;
+        const size = this.size * pulse;
+        
+        ctx.save();
+        
+        // Very subtle outer glow
+        ctx.shadowBlur = 25;
+        ctx.shadowColor = 'rgba(200, 100, 50, 0.15)';
+        
+        // Mars surface gradient - realistic colors
+        const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, size);
+        gradient.addColorStop(0, 'rgba(210, 125, 70, 0.25)');
+        gradient.addColorStop(0.6, 'rgba(180, 95, 55, 0.18)');
+        gradient.addColorStop(1, 'rgba(140, 70, 40, 0.08)');
+        
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, size, 0, Math.PI * 2);
+        ctx.fillStyle = gradient;
+        ctx.fill();
+        
+        // Subtle surface texture
+        ctx.shadowBlur = 0;
+        for (let i = 0; i < 2; i++) {
+          const angle = Math.random() * Math.PI * 2;
+          const dist = Math.random() * size * 0.6;
+          const dotX = this.x + Math.cos(angle) * dist;
+          const dotY = this.y + Math.sin(angle) * dist;
+          const dotSize = size * 0.1;
+          
+          ctx.beginPath();
+          ctx.arc(dotX, dotY, dotSize, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(120, 60, 35, 0.15)';
+          ctx.fill();
+        }
+        
+        ctx.restore();
+      }
+    }
+
+    // Initialize all elements
+    const stars = [];
+    const starCount = 200;
+    for (let i = 0; i < starCount; i++) {
+      stars.push(new Star());
+    }
+
+    const nebulaClouds = [];
+    // Left side nebula
+    for (let i = 0; i < 8; i++) {
+      nebulaClouds.push(new NebulaCloud('left'));
+    }
+    // Right side nebula
+    for (let i = 0; i < 8; i++) {
+      nebulaClouds.push(new NebulaCloud('right'));
+    }
+
+    const shootingStars = [];
+    const dustParticles = [];
+    const distantBodies = [
+      new DistantMars('top-left'),
+      new DistantMars('bottom-right')
+    ];
+
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      // Draw nebula clouds first (background layer)
+      nebulaClouds.forEach(cloud => {
+        cloud.update();
+        cloud.draw();
+      });
+      
+      // Draw stars
+      stars.forEach(star => {
+        star.update();
+        star.draw();
+      });
+      
+      // Add new shooting stars occasionally
+      if (Math.random() < 0.01 && shootingStars.length < 3) {
+        shootingStars.push(new ShootingStar());
+      }
+      
+      // Update and draw shooting stars
+      for (let i = shootingStars.length - 1; i >= 0; i--) {
+        shootingStars[i].update();
+        shootingStars[i].draw();
+        
+        if (shootingStars[i].isDead()) {
+          shootingStars.splice(i, 1);
+        }
+      }
+      
+      // Add new dust particles occasionally
+      if (Math.random() < 0.15 && dustParticles.length < 60) {
+        dustParticles.push(new MarsDust());
+      }
+      
+      // Update and draw dust
+      for (let i = dustParticles.length - 1; i >= 0; i--) {
+        dustParticles[i].update();
+        dustParticles[i].draw();
+        
+        if (dustParticles[i].isDead()) {
+          dustParticles.splice(i, 1);
+        }
+      }
+      
+      // Update and draw distant Mars bodies
+      distantBodies.forEach(body => {
+        body.update();
+        body.draw();
+      });
+      
+      animationFrameId = requestAnimationFrame(animate);
+    }
+
+    animate();
+    window.addEventListener('resize', resizeCanvas);
+
+    return () => {
+      window.removeEventListener('resize', resizeCanvas);
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, []);
+
   return (
     <div className="relative min-h-screen overflow-hidden">
       {/* Animated Canvas Background */}
@@ -265,6 +653,270 @@ const Home = () => {
         className="fixed top-0 left-0 w-full h-full pointer-events-none"
         style={{ zIndex: 0 }}
       />
+
+      {/* Mars-themed animated background */}
+      <canvas
+        ref={marsCanvasRef}
+        className="fixed top-0 left-0 w-full h-full pointer-events-none"
+        style={{ zIndex: 0 }}
+      />
+
+      {/* Space-themed Planets Background - Left and Right Sides */}
+      <div className="fixed top-0 left-0 w-full h-full pointer-events-none overflow-hidden" style={{ zIndex: 0 }}>
+        {/* Left Side Planets */}
+        <motion.div
+          className="absolute"
+          style={{
+            left: '-5%',
+            top: '10%',
+            width: '200px',
+            height: '200px',
+          }}
+          animate={{
+            y: [0, -30, 0],
+            x: [0, 15, 0],
+            rotate: [0, 360],
+          }}
+          transition={{
+            duration: 25,
+            repeat: Infinity,
+            ease: "linear"
+          }}
+        >
+          <div
+            style={{
+              width: '100%',
+              height: '100%',
+              borderRadius: '50%',
+              background: 'radial-gradient(circle at 30% 30%, #00ffff 0%, #00d4ff 50%, #0099cc 100%)',
+              boxShadow: '0 0 80px rgba(0, 255, 255, 0.8), inset -20px -20px 40px rgba(0, 0, 0, 0.3)',
+              position: 'relative'
+            }}
+          >
+            {/* Planet rings */}
+            <div
+              style={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%) rotateX(75deg)',
+                width: '280px',
+                height: '280px',
+                border: '8px solid rgba(0, 255, 255, 0.4)',
+                borderRadius: '50%',
+                boxShadow: '0 0 30px rgba(0, 255, 255, 0.6)'
+              }}
+            />
+          </div>
+        </motion.div>
+
+        <motion.div
+          className="absolute"
+          style={{
+            left: '2%',
+            top: '55%',
+            width: '120px',
+            height: '120px',
+          }}
+          animate={{
+            y: [0, 40, 0],
+            x: [0, -20, 0],
+            rotate: [0, -360],
+          }}
+          transition={{
+            duration: 30,
+            repeat: Infinity,
+            ease: "linear"
+          }}
+        >
+          <div
+            style={{
+              width: '100%',
+              height: '100%',
+              borderRadius: '50%',
+              background: 'radial-gradient(circle at 35% 35%, #5ddbff 0%, #00b8ff 50%, #0088cc 100%)',
+              boxShadow: '0 0 60px rgba(93, 219, 255, 0.7), inset -15px -15px 30px rgba(0, 0, 0, 0.4)',
+            }}
+          />
+        </motion.div>
+
+        <motion.div
+          className="absolute"
+          style={{
+            left: '-3%',
+            top: '75%',
+            width: '150px',
+            height: '150px',
+          }}
+          animate={{
+            y: [0, -35, 0],
+            x: [0, 18, 0],
+            rotate: [0, 360],
+          }}
+          transition={{
+            duration: 28,
+            repeat: Infinity,
+            ease: "linear"
+          }}
+        >
+          <div
+            style={{
+              width: '100%',
+              height: '100%',
+              borderRadius: '50%',
+              background: 'radial-gradient(circle at 40% 30%, #33ddff 0%, #00c4ff 50%, #0099dd 100%)',
+              boxShadow: '0 0 70px rgba(51, 221, 255, 0.6), inset -18px -18px 35px rgba(0, 0, 0, 0.35)',
+            }}
+          />
+        </motion.div>
+
+        {/* Right Side Planets */}
+        <motion.div
+          className="absolute"
+          style={{
+            right: '-4%',
+            top: '15%',
+            width: '180px',
+            height: '180px',
+          }}
+          animate={{
+            y: [0, 35, 0],
+            x: [0, -18, 0],
+            rotate: [0, -360],
+          }}
+          transition={{
+            duration: 27,
+            repeat: Infinity,
+            ease: "linear"
+          }}
+        >
+          <div
+            style={{
+              width: '100%',
+              height: '100%',
+              borderRadius: '50%',
+              background: 'radial-gradient(circle at 35% 25%, #80e5ff 0%, #00ccff 50%, #0099dd 100%)',
+              boxShadow: '0 0 75px rgba(128, 229, 255, 0.7), inset -17px -17px 34px rgba(0, 0, 0, 0.3)',
+            }}
+          />
+        </motion.div>
+
+        <motion.div
+          className="absolute"
+          style={{
+            right: '1%',
+            top: '50%',
+            width: '220px',
+            height: '220px',
+          }}
+          animate={{
+            y: [0, -40, 0],
+            x: [0, 20, 0],
+            rotate: [0, 360],
+          }}
+          transition={{
+            duration: 32,
+            repeat: Infinity,
+            ease: "linear"
+          }}
+        >
+          <div
+            style={{
+              width: '100%',
+              height: '100%',
+              borderRadius: '50%',
+              background: 'radial-gradient(circle at 30% 30%, #00e5ff 0%, #00b8ff 50%, #0088cc 100%)',
+              boxShadow: '0 0 90px rgba(0, 229, 255, 0.8), inset -22px -22px 44px rgba(0, 0, 0, 0.35)',
+              position: 'relative'
+            }}
+          >
+            {/* Planet rings */}
+            <div
+              style={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%) rotateX(70deg)',
+                width: '320px',
+                height: '320px',
+                border: '10px solid rgba(0, 229, 255, 0.35)',
+                borderRadius: '50%',
+                boxShadow: '0 0 35px rgba(0, 229, 255, 0.5)'
+              }}
+            />
+            <div
+              style={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%) rotateX(70deg)',
+                width: '360px',
+                height: '360px',
+                border: '6px solid rgba(0, 229, 255, 0.25)',
+                borderRadius: '50%',
+                boxShadow: '0 0 25px rgba(0, 229, 255, 0.4)'
+              }}
+            />
+          </div>
+        </motion.div>
+
+        <motion.div
+          className="absolute"
+          style={{
+            right: '-2%',
+            top: '78%',
+            width: '140px',
+            height: '140px',
+          }}
+          animate={{
+            y: [0, 30, 0],
+            x: [0, -15, 0],
+            rotate: [0, -360],
+          }}
+          transition={{
+            duration: 26,
+            repeat: Infinity,
+            ease: "linear"
+          }}
+        >
+          <div
+            style={{
+              width: '100%',
+              height: '100%',
+              borderRadius: '50%',
+              background: 'radial-gradient(circle at 38% 28%, #00f2ff 0%, #00c4ff 50%, #0088cc 100%)',
+              boxShadow: '0 0 65px rgba(0, 242, 255, 0.7), inset -16px -16px 32px rgba(0, 0, 0, 0.4)',
+            }}
+          />
+        </motion.div>
+
+        {/* Small floating stars/particles around planets */}
+        {[...Array(15)].map((_, i) => (
+          <motion.div
+            key={`star-${i}`}
+            className="absolute"
+            style={{
+              left: `${i < 8 ? Math.random() * 15 : 85 + Math.random() * 15}%`,
+              top: `${Math.random() * 100}%`,
+              width: `${Math.random() * 4 + 2}px`,
+              height: `${Math.random() * 4 + 2}px`,
+              borderRadius: '50%',
+              background: 'radial-gradient(circle, rgba(255, 255, 255, 0.9) 0%, rgba(0, 212, 255, 0.5) 100%)',
+              boxShadow: '0 0 10px rgba(255, 255, 255, 0.8)',
+            }}
+            animate={{
+              opacity: [0.3, 1, 0.3],
+              scale: [1, 1.5, 1],
+            }}
+            transition={{
+              duration: Math.random() * 3 + 2,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: Math.random() * 2
+            }}
+          />
+        ))}
+      </div>
 
       {/* Hero Section with Two-Column Layout */}
       <motion.section 
@@ -275,20 +927,14 @@ const Home = () => {
         }}
       >
         <div className="container mx-auto max-w-7xl">
-          {/* Main Heading Centered Above */}
+          {/* Main Heading Centered Above - Split into two lines - LARGER SIZE */}
           <motion.div 
-            className="text-center mb-16"
+            className="text-center mb-12"
             initial={{ opacity: 0, y: -50 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1.2, ease: "easeOut" }}
           >
-            <motion.h1 
-              className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-extrabold leading-tight mb-4"
-              style={{
-                fontFamily: 'Rajdhani, sans-serif',
-                textShadow: '0 0 40px rgba(0, 212, 255, 0.7), 0 0 80px rgba(0, 212, 255, 0.4)',
-                color: '#ffffff'
-              }}
+            <motion.div
               animate={{
                 scale: [1, 1.02, 1],
               }}
@@ -298,22 +944,41 @@ const Home = () => {
                 ease: "easeInOut"
               }}
             >
-              Martianblue Anti-Phishing Platform
-            </motion.h1>
+              <h1 
+                className="text-6xl sm:text-7xl md:text-8xl lg:text-9xl xl:text-[10rem] font-extrabold leading-tight"
+                style={{
+                  fontFamily: 'Rajdhani, sans-serif',
+                  textShadow: '0 0 40px rgba(0, 212, 255, 0.7), 0 0 80px rgba(0, 212, 255, 0.4)',
+                  color: '#ffffff'
+                }}
+              >
+                Martianblue
+              </h1>
+              <h1 
+                className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-[8rem] font-extrabold leading-tight mt-2"
+                style={{
+                  fontFamily: 'Rajdhani, sans-serif',
+                  textShadow: '0 0 40px rgba(0, 212, 255, 0.7), 0 0 80px rgba(0, 212, 255, 0.4)',
+                  color: '#ffffff'
+                }}
+              >
+                Anti-Phishing Platform
+              </h1>
+            </motion.div>
           </motion.div>
 
-          {/* Content Grid - Two Columns Below Heading */}
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-            {/* Left Column - Text Content */}
+          {/* Content Grid - Adjusted ratio for larger video */}
+          <div className="grid lg:grid-cols-5 gap-12 items-center">
+            {/* Left Column - Text Content (2 columns) */}
             <motion.div
               initial={{ opacity: 0, x: -80 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 1, ease: "easeOut", delay: 0.3 }}
-              className="space-y-8"
+              className="lg:col-span-2 space-y-8"
             >
               {/* Subtitle */}
               <motion.h2 
-                className="text-4xl md:text-5xl lg:text-6xl font-semibold mb-6"
+                className="text-3xl md:text-4xl lg:text-5xl font-semibold mb-6"
                 style={{
                   fontFamily: 'Rajdhani, sans-serif',
                   color: '#00d4ff',
@@ -333,7 +998,7 @@ const Home = () => {
               
               {/* Description */}
               <motion.p 
-                className="text-lg md:text-xl lg:text-2xl leading-relaxed"
+                className="text-base md:text-lg lg:text-xl leading-relaxed"
                 style={{
                   fontFamily: 'Poppins, sans-serif',
                   color: 'rgba(255, 255, 255, 0.95)',
@@ -358,7 +1023,7 @@ const Home = () => {
               >
                 <Link to="/contact">
                   <motion.button 
-                    className="cyber-button text-xl px-12 py-5 font-bold"
+                    className="cyber-button text-lg px-10 py-4 font-bold"
                     whileHover={{ 
                       scale: 1.08,
                       boxShadow: '0 20px 60px rgba(0, 212, 255, 0.7)'
@@ -385,12 +1050,12 @@ const Home = () => {
               </motion.div>
             </motion.div>
 
-            {/* Right Column - Video Player */}
+            {/* Right Column - Video Player (3 columns - larger) */}
             <motion.div
               initial={{ opacity: 0, x: 80 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 1, ease: "easeOut", delay: 0.4 }}
-              className="relative flex justify-center items-center"
+              className="lg:col-span-3 relative flex justify-center items-center"
             >
               <div 
                 ref={videoContainerRef}
@@ -399,7 +1064,6 @@ const Home = () => {
                 style={{
                   boxShadow: '0 20px 60px rgba(255, 255, 255, 0.1)',
                   border: isFullscreen ? 'none' : '2px solid rgba(255, 255, 255, 0.2)',
-                  maxWidth: '650px',
                   borderRadius: isFullscreen ? '0' : '1.5rem',
                   position: isFullscreen ? 'fixed' : 'relative',
                   top: isFullscreen ? '0' : 'auto',
@@ -427,8 +1091,8 @@ const Home = () => {
                         muted
                         autoPlay
                         style={{
-                          minHeight: isFullscreen ? '100vh' : '400px',
-                          maxHeight: isFullscreen ? '100vh' : '500px',
+                          minHeight: isFullscreen ? '100vh' : '450px',
+                          maxHeight: isFullscreen ? '100vh' : '700px',
                           objectFit: isFullscreen ? 'contain' : 'cover',
                           display: 'block',
                           backgroundColor: 'rgba(10, 30, 56, 0.5)',
@@ -450,9 +1114,9 @@ const Home = () => {
                       >
                         <div className="px-6 py-4 flex items-center justify-between">
                           <div className="flex items-center space-x-3">
-                            {/* Play/Pause Button */}
+                            {/* Play/Pause Button - Fixed with stopPropagation */}
                             <motion.button
-                              onClick={handleVideoClick}
+                              onClick={togglePlayPause}
                               className="text-white hover:text-cyan-400 transition-colors"
                               whileHover={{ scale: 1.1 }}
                               whileTap={{ scale: 0.9 }}
@@ -549,6 +1213,7 @@ const Home = () => {
             <motion.span 
               className="text-lg font-semibold tracking-wider uppercase mb-6 block"
               style={{
+                fontFamily: 'Rajdhani, sans-serif',
                 color: '#00d4ff',
                 textShadow: '0 0 20px rgba(0, 212, 255, 0.6)'
               }}
@@ -563,8 +1228,9 @@ const Home = () => {
             >
               OUR FEATURES
             </motion.span>
+            
             <motion.h2 
-              className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6"
+              className="text-4xl md:text-5xl lg:text-6xl font-bold"
               style={{
                 fontFamily: 'Rajdhani, sans-serif',
                 color: '#ffffff',
@@ -574,12 +1240,12 @@ const Home = () => {
                 y: [-5, 5, -5],
               }}
               transition={{
-                duration: 4,
+                duration: 3,
                 repeat: Infinity,
                 ease: "easeInOut"
               }}
             >
-              Comprehensive Cybersecurity Solutions
+              Comprehensive Security Solutions
             </motion.h2>
           </motion.div>
 
