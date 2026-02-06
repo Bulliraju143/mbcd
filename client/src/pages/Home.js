@@ -646,7 +646,93 @@ const Home = () => {
   }, []);
 
   return (
-    <div className="relative min-h-screen overflow-hidden">
+    <div className="relative min-h-screen overflow-hidden" style={{ background: 'linear-gradient(to bottom right, #020617, #0f172a, #020617)' }}>
+      {/* PROFESSIONAL CINEMATIC ENTRANCE */}
+      <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 10 }}>
+        {/* Elegant fade from white */}
+        <div
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            background: '#ffffff',
+            animation: 'cinematicFade 2s ease-out',
+            opacity: 0
+          }}
+        />
+        
+        {/* Subtle light sweep across screen */}
+        <div
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: '-100%',
+            width: '100%',
+            height: '100%',
+            background: 'linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.3) 50%, transparent 100%)',
+            animation: 'lightSweep 1.5s ease-out 0.5s',
+            opacity: 0
+          }}
+        />
+      </div>
+
+      {/* Shooting Stars / Falling Stars Effect */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden" style={{ zIndex: 0 }}>
+        {/* Reduced to 8 shooting stars with different timings and positions */}
+        {[...Array(8)].map((_, i) => (
+          <div
+            key={`shooting-star-${i}`}
+            className="absolute"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * -50}%`,
+              width: '2px',
+              height: '2px',
+              background: 'white',
+              borderRadius: '50%',
+              boxShadow: '0 0 6px 2px rgba(255, 255, 255, 0.8)',
+              animation: `shootingStar${i} ${8 + Math.random() * 6}s linear infinite`,
+              animationDelay: `${Math.random() * 8}s`,
+              opacity: 0
+            }}
+          >
+            <div
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100px',
+                height: '1px',
+                background: 'linear-gradient(90deg, rgba(255,255,255,0.8) 0%, transparent 100%)',
+                transform: 'rotate(45deg)',
+                transformOrigin: '0 0'
+              }}
+            />
+          </div>
+        ))}
+      </div>
+
+      {/* Twinkling Stars Background */}
+      <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 0 }}>
+        {[...Array(80)].map((_, i) => (
+          <div
+            key={`star-${i}`}
+            className="absolute rounded-full bg-white"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              width: `${1 + Math.random() * 2}px`,
+              height: `${1 + Math.random() * 2}px`,
+              animation: `twinkle ${2 + Math.random() * 3}s ease-in-out infinite`,
+              animationDelay: `${Math.random() * 3}s`,
+              boxShadow: '0 0 3px rgba(255, 255, 255, 0.5)'
+            }}
+          />
+        ))}
+      </div>
+
       {/* Animated Canvas Background */}
       <canvas
         ref={canvasRef}
@@ -890,6 +976,385 @@ const Home = () => {
           />
         </motion.div>
 
+        {/* RED MARS PLANETS - Randomly distributed across entire screen */}
+        {/* Large Red Mars - Top Right Area */}
+        <motion.div
+          className="absolute"
+          style={{
+            right: '10%',
+            top: '8%',
+            width: '110px',
+            height: '110px',
+            opacity: 0.75,
+          }}
+          animate={{
+            y: [0, 22, 0],
+            x: [0, -10, 0],
+            rotate: [0, -360],
+          }}
+          transition={{
+            duration: 35,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        >
+          <div
+            style={{
+              width: '100%',
+              height: '100%',
+              borderRadius: '50%',
+              background: 'radial-gradient(circle at 30% 25%, #ff8c69 0%, #ff6347 40%, #dc143c 75%, #b22222 100%)',
+              boxShadow: '0 0 50px rgba(255, 69, 0, 0.4), inset -14px -14px 28px rgba(0, 0, 0, 0.4)',
+              position: 'relative',
+              filter: 'blur(0.3px)'
+            }}
+          >
+            {/* Mars craters */}
+            <div style={{
+              position: 'absolute',
+              top: '25%',
+              left: '35%',
+              width: '15px',
+              height: '15px',
+              borderRadius: '50%',
+              background: 'rgba(0, 0, 0, 0.22)',
+              boxShadow: 'inset 1px 1px 3px rgba(0, 0, 0, 0.3)'
+            }} />
+            <div style={{
+              position: 'absolute',
+              top: '60%',
+              left: '55%',
+              width: '11px',
+              height: '11px',
+              borderRadius: '50%',
+              background: 'rgba(0, 0, 0, 0.18)',
+            }} />
+            <div style={{
+              position: 'absolute',
+              top: '48%',
+              left: '22%',
+              width: '8px',
+              height: '8px',
+              borderRadius: '50%',
+              background: 'rgba(0, 0, 0, 0.15)'
+            }} />
+          </div>
+        </motion.div>
+
+        {/* Medium Red Mars - Left Top */}
+        <motion.div
+          className="absolute"
+          style={{
+            left: '7%',
+            top: '15%',
+            width: '95px',
+            height: '95px',
+            opacity: 0.72,
+          }}
+          animate={{
+            y: [0, -18, 0],
+            x: [0, 10, 0],
+            rotate: [0, 360],
+          }}
+          transition={{
+            duration: 30,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        >
+          <div
+            style={{
+              width: '100%',
+              height: '100%',
+              borderRadius: '50%',
+              background: 'radial-gradient(circle at 32% 30%, #ff9966 0%, #ff6347 38%, #cd5c5c 72%, #a0522d 100%)',
+              boxShadow: '0 0 45px rgba(255, 99, 71, 0.42), inset -12px -12px 24px rgba(0, 0, 0, 0.38)',
+              position: 'relative',
+              filter: 'blur(0.3px)'
+            }}
+          >
+            <div style={{
+              position: 'absolute',
+              top: '30%',
+              left: '40%',
+              width: '13px',
+              height: '13px',
+              borderRadius: '50%',
+              background: 'rgba(0, 0, 0, 0.21)'
+            }} />
+            <div style={{
+              position: 'absolute',
+              top: '58%',
+              left: '58%',
+              width: '10px',
+              height: '10px',
+              borderRadius: '50%',
+              background: 'rgba(0, 0, 0, 0.17)'
+            }} />
+          </div>
+        </motion.div>
+
+        {/* Coral Planet - Left Middle-Bottom */}
+        <motion.div
+          className="absolute"
+          style={{
+            left: '4%',
+            top: '62%',
+            width: '78px',
+            height: '78px',
+            opacity: 0.66,
+          }}
+          animate={{
+            y: [0, 20, 0],
+            x: [0, -8, 0],
+            rotate: [0, 360],
+          }}
+          transition={{
+            duration: 27,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        >
+          <div
+            style={{
+              width: '100%',
+              height: '100%',
+              borderRadius: '50%',
+              background: 'radial-gradient(circle at 28% 28%, #ff9980 0%, #ff7f50 42%, #e9967a 80%, #cd5c5c 100%)',
+              boxShadow: '0 0 40px rgba(255, 127, 80, 0.38), inset -10px -10px 20px rgba(0, 0, 0, 0.36)',
+              position: 'relative',
+              filter: 'blur(0.3px)'
+            }}
+          >
+            <div style={{
+              position: 'absolute',
+              top: '36%',
+              left: '46%',
+              width: '10px',
+              height: '10px',
+              borderRadius: '50%',
+              background: 'rgba(0, 0, 0, 0.19)'
+            }} />
+            <div style={{
+              position: 'absolute',
+              top: '60%',
+              left: '28%',
+              width: '7px',
+              height: '7px',
+              borderRadius: '50%',
+              background: 'rgba(0, 0, 0, 0.15)'
+            }} />
+          </div>
+        </motion.div>
+
+        {/* Small Red-Orange - Right Middle */}
+        <motion.div
+          className="absolute"
+          style={{
+            right: '6%',
+            top: '45%',
+            width: '68px',
+            height: '68px',
+            opacity: 0.63,
+          }}
+          animate={{
+            y: [0, -16, 0],
+            x: [0, 9, 0],
+            rotate: [360, 0],
+          }}
+          transition={{
+            duration: 25,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        >
+          <div
+            style={{
+              width: '100%',
+              height: '100%',
+              borderRadius: '50%',
+              background: 'radial-gradient(circle at 30% 30%, #ffa07a 0%, #ff8c69 45%, #cd5c5c 85%, #8b4513 100%)',
+              boxShadow: '0 0 36px rgba(205, 92, 92, 0.36), inset -9px -9px 18px rgba(0, 0, 0, 0.36)',
+              position: 'relative',
+              filter: 'blur(0.3px)'
+            }}
+          >
+            <div style={{
+              position: 'absolute',
+              top: '38%',
+              left: '48%',
+              width: '9px',
+              height: '9px',
+              borderRadius: '50%',
+              background: 'rgba(0, 0, 0, 0.18)'
+            }} />
+          </div>
+        </motion.div>
+
+        {/* Tiny Red - Left Far Bottom */}
+        <motion.div
+          className="absolute"
+          style={{
+            left: '11%',
+            bottom: '10%',
+            width: '52px',
+            height: '52px',
+            opacity: 0.58,
+          }}
+          animate={{
+            y: [0, 15, 0],
+            x: [0, -6, 0],
+            rotate: [0, 360],
+          }}
+          transition={{
+            duration: 22,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        >
+          <div
+            style={{
+              width: '100%',
+              height: '100%',
+              borderRadius: '50%',
+              background: 'radial-gradient(circle at 32% 28%, #ff6347 0%, #dc143c 50%, #8b0000 100%)',
+              boxShadow: '0 0 28px rgba(220, 20, 60, 0.32), inset -7px -7px 14px rgba(0, 0, 0, 0.32)',
+              filter: 'blur(0.3px)'
+            }}
+          />
+        </motion.div>
+
+        {/* Small Orange-Red - Right Bottom */}
+        <motion.div
+          className="absolute"
+          style={{
+            right: '12%',
+            bottom: '15%',
+            width: '62px',
+            height: '62px',
+            opacity: 0.60,
+          }}
+          animate={{
+            y: [0, -13, 0],
+            x: [0, 7, 0],
+            rotate: [0, -360],
+          }}
+          transition={{
+            duration: 24,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        >
+          <div
+            style={{
+              width: '100%',
+              height: '100%',
+              borderRadius: '50%',
+              background: 'radial-gradient(circle at 30% 30%, #ff8c42 0%, #ff7f50 48%, #cd5c5c 100%)',
+              boxShadow: '0 0 32px rgba(255, 127, 80, 0.34), inset -8px -8px 16px rgba(0, 0, 0, 0.34)',
+              filter: 'blur(0.3px)'
+            }}
+          />
+        </motion.div>
+
+        {/* Mini Rust Planet - Left Upper Middle */}
+        <motion.div
+          className="absolute"
+          style={{
+            left: '15%',
+            top: '35%',
+            width: '48px',
+            height: '48px',
+            opacity: 0.54,
+          }}
+          animate={{
+            y: [0, 12, 0],
+            x: [0, -5, 0],
+            rotate: [0, 360],
+          }}
+          transition={{
+            duration: 20,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        >
+          <div
+            style={{
+              width: '100%',
+              height: '100%',
+              borderRadius: '50%',
+              background: 'radial-gradient(circle at 28% 28%, #d2691e 0%, #a0522d 55%, #8b4513 100%)',
+              boxShadow: '0 0 26px rgba(160, 82, 45, 0.30), inset -6px -6px 12px rgba(0, 0, 0, 0.30)',
+              filter: 'blur(0.3px)'
+            }}
+          />
+        </motion.div>
+
+        {/* Micro Dark Red - Right Top Far */}
+        <motion.div
+          className="absolute"
+          style={{
+            right: '18%',
+            top: '18%',
+            width: '44px',
+            height: '44px',
+            opacity: 0.50,
+          }}
+          animate={{
+            y: [0, -11, 0],
+            x: [0, 5, 0],
+            rotate: [0, -360],
+          }}
+          transition={{
+            duration: 19,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        >
+          <div
+            style={{
+              width: '100%',
+              height: '100%',
+              borderRadius: '50%',
+              background: 'radial-gradient(circle at 30% 30%, #cd5c5c 0%, #b22222 52%, #800000 100%)',
+              boxShadow: '0 0 24px rgba(178, 34, 34, 0.28), inset -5px -5px 10px rgba(0, 0, 0, 0.28)',
+              filter: 'blur(0.3px)'
+            }}
+          />
+        </motion.div>
+
+        {/* Tiny Distant Red - Left Top Far */}
+        <motion.div
+          className="absolute"
+          style={{
+            left: '3%',
+            top: '8%',
+            width: '38px',
+            height: '38px',
+            opacity: 0.46,
+          }}
+          animate={{
+            y: [0, 10, 0],
+            x: [0, -4, 0],
+            rotate: [0, 360],
+          }}
+          transition={{
+            duration: 17,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        >
+          <div
+            style={{
+              width: '100%',
+              height: '100%',
+              borderRadius: '50%',
+              background: 'radial-gradient(circle at 32% 30%, #ff6347 0%, #dc143c 58%, #8b0000 100%)',
+              boxShadow: '0 0 20px rgba(220, 20, 60, 0.25), inset -4px -4px 8px rgba(0, 0, 0, 0.26)',
+              filter: 'blur(0.3px)'
+            }}
+          />
+        </motion.div>
         {/* Small floating stars/particles around planets */}
         {[...Array(15)].map((_, i) => (
           <motion.div
@@ -1455,9 +1920,9 @@ const Home = () => {
                   whileTap={{ scale: 0.95 }}
                   animate={{
                     boxShadow: [
-                      '0 10px 30px rgba(0, 212, 255, 0.3)',
-                      '0 15px 45px rgba(0, 212, 255, 0.5)',
-                      '0 10px 30px rgba(0, 212, 255, 0.3)'
+                      '0 10px 30px rgba(0, 212, 255, 0.4)',
+                      '0 15px 45px rgba(0, 212, 255, 0.6)',
+                      '0 10px 30px rgba(0, 212, 255, 0.4)'
                     ]
                   }}
                   transition={{
@@ -1468,35 +1933,7 @@ const Home = () => {
                     }
                   }}
                 >
-                  Get Started
-                </motion.button>
-              </Link>
-              
-              <Link to="/cybersecurity-services">
-                <motion.button 
-                  className="bg-transparent border-2 text-lg px-10 py-4 rounded-lg font-bold text-white transition-all duration-300"
-                  style={{
-                    borderColor: '#00d4ff',
-                    fontFamily: 'Poppins, sans-serif'
-                  }}
-                  whileHover={{ 
-                    scale: 1.08,
-                    backgroundColor: 'rgba(0, 212, 255, 0.1)',
-                    boxShadow: '0 15px 45px rgba(0, 212, 255, 0.4)'
-                  }}
-                  whileTap={{ scale: 0.95 }}
-                  animate={{
-                    borderColor: ['#00d4ff', '#00ffaa', '#00d4ff'],
-                  }}
-                  transition={{
-                    borderColor: {
-                      duration: 3,
-                      repeat: Infinity,
-                      ease: "easeInOut"
-                    }
-                  }}
-                >
-                  Learn More
+                  Request A Demo
                 </motion.button>
               </Link>
             </div>
@@ -1504,10 +1941,67 @@ const Home = () => {
         </div>
       </section>
 
-      <style jsx>{`
-        @keyframes shimmer {
+      {/* CSS Animations for Shooting Stars and Twinkling */}
+      <style>{`
+        .cyber-button {
+          position: relative;
+          background: linear-gradient(90deg, #00d4ff, #00ffaa);
+          border: 2px solid rgba(0, 212, 255, 0.5);
+          border-radius: 8px;
+          color: #000;
+          font-weight: bold;
+          overflow: hidden;
+          z-index: 1;
+          transition: all 0.3s ease;
+        }
+        
+        .cyber-button::before {
+          content: '';
+          position: absolute;
+          top: -2px;
+          left: -2px;
+          right: -2px;
+          bottom: -2px;
+          background: linear-gradient(90deg, #00d4ff, #00ffaa, #00d4ff);
+          background-size: 200% 100%;
+          border-radius: 8px;
+          z-index: -1;
+          animation: gradient-shift 3s linear infinite;
+        }
+        
+        .cyber-button:hover::before {
+          animation: gradient-shift 1.5s linear infinite;
+        }
+        
+        .cyber-card {
+          background: rgba(10, 30, 56, 0.7);
+          border: 1px solid rgba(0, 212, 255, 0.3);
+          border-radius: 16px;
+          padding: 2rem;
+          backdrop-filter: blur(10px);
+          transition: all 0.3s ease;
+          position: relative;
+          overflow: hidden;
+        }
+        
+        .cyber-card::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.1), transparent);
+          transition: left 0.5s ease;
+        }
+        
+        .cyber-card:hover::before {
+          left: 100%;
+        }
+        
+        @keyframes gradient-shift {
           0% { 
-            background-position: -200% 0;
+            background-position: 0% 0;
           }
           100% { 
             background-position: 200% 0;
@@ -1517,6 +2011,148 @@ const Home = () => {
         @keyframes rotate-border {
           0% { transform: rotate(0deg); }
           100% { transform: rotate(360deg); }
+        }
+
+        /* PROFESSIONAL CINEMATIC ENTRANCE */
+        
+        /* Elegant fade from white - like a movie */
+        @keyframes cinematicFade {
+          0% {
+            opacity: 1;
+          }
+          100% {
+            opacity: 0;
+          }
+        }
+        
+        /* Subtle light sweep */
+        @keyframes lightSweep {
+          0% {
+            left: -100%;
+            opacity: 1;
+          }
+          100% {
+            left: 100%;
+            opacity: 0;
+          }
+        }
+
+        /* Shooting Stars Animations - Reduced to 8 */
+        @keyframes shootingStar0 {
+          0% {
+            transform: translateY(0) translateX(0);
+            opacity: 1;
+          }
+          70% {
+            opacity: 1;
+          }
+          100% {
+            transform: translateY(100vh) translateX(100vh);
+            opacity: 0;
+          }
+        }
+        @keyframes shootingStar1 {
+          0% {
+            transform: translateY(0) translateX(0);
+            opacity: 1;
+          }
+          70% {
+            opacity: 1;
+          }
+          100% {
+            transform: translateY(110vh) translateX(90vh);
+            opacity: 0;
+          }
+        }
+        @keyframes shootingStar2 {
+          0% {
+            transform: translateY(0) translateX(0);
+            opacity: 1;
+          }
+          70% {
+            opacity: 1;
+          }
+          100% {
+            transform: translateY(95vh) translateX(105vh);
+            opacity: 0;
+          }
+        }
+        @keyframes shootingStar3 {
+          0% {
+            transform: translateY(0) translateX(0);
+            opacity: 1;
+          }
+          70% {
+            opacity: 1;
+          }
+          100% {
+            transform: translateY(105vh) translateX(95vh);
+            opacity: 0;
+          }
+        }
+        @keyframes shootingStar4 {
+          0% {
+            transform: translateY(0) translateX(0);
+            opacity: 1;
+          }
+          70% {
+            opacity: 1;
+          }
+          100% {
+            transform: translateY(100vh) translateX(110vh);
+            opacity: 0;
+          }
+        }
+        @keyframes shootingStar5 {
+          0% {
+            transform: translateY(0) translateX(0);
+            opacity: 1;
+          }
+          70% {
+            opacity: 1;
+          }
+          100% {
+            transform: translateY(108vh) translateX(98vh);
+            opacity: 0;
+          }
+        }
+        @keyframes shootingStar6 {
+          0% {
+            transform: translateY(0) translateX(0);
+            opacity: 1;
+          }
+          70% {
+            opacity: 1;
+          }
+          100% {
+            transform: translateY(98vh) translateX(108vh);
+            opacity: 0;
+          }
+        }
+        @keyframes shootingStar7 {
+          0% {
+            transform: translateY(0) translateX(0);
+            opacity: 1;
+          }
+          70% {
+            opacity: 1;
+          }
+          100% {
+            transform: translateY(102vh) translateX(102vh);
+            opacity: 0;
+          }
+        }
+
+        /* Twinkling Stars Animation */
+        @keyframes twinkle {
+          0%, 100% {
+            opacity: 0.3;
+            transform: scale(1);
+          }
+          50% {
+            opacity: 1;
+            transform: scale(1.2);
+          }
         }
       `}</style>
     </div>
