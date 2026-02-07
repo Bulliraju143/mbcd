@@ -106,49 +106,7 @@ const About = () => {
       </section>
 
 
-      {/* Team Section */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-20">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
-          className="text-center mb-16"
-        >
-          <span className="text-sm font-semibold tracking-wider uppercase mb-4 block" style={{ color: '#00b4d8' }}>
-            OUR TEAM
-          </span>
-          <h2 className="text-4xl md:text-5xl font-bold text-white">
-            Professionals Who Handle Your Cyber Security
-          </h2>
-        </motion.div>
-
-        <div className="flex justify-center">
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="cyber-card text-center max-w-md"
-          >
-            <div className="mb-4 flex justify-center">
-              <div className="w-32 h-32 rounded-full overflow-hidden border-4" style={{ borderColor: '#00b4d8' }}>
-                <img 
-                  src={team[0].image} 
-                  alt={team[0].name}
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="200" height="200"%3E%3Crect width="200" height="200" fill="%230d2847"/%3E%3Ctext x="50%25" y="50%25" font-family="Arial" font-size="60" fill="%2300b4d8" text-anchor="middle" dy=".3em"%3EGV%3C/text%3E%3C/svg%3E';
-                  }}
-                />
-              </div>
-            </div>
-            <h3 className="text-2xl font-bold mb-2 text-white">{team[0].name}</h3>
-            <p className="mb-2" style={{ color: '#00b4d8' }}>{team[0].role}</p>
-            <p className="text-sm text-gray-400">{team[0].experience}</p>
-          </motion.div>
-        </div>
-      </section>
+      
 
       {/* Mission */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-20 py-20" style={{ background: '#0d2847', borderRadius: '8px' }}>
