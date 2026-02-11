@@ -201,12 +201,12 @@ const CybersecurityServices = () => {
   };
 
   return (
-    <div className="relative min-h-screen overflow-hidden" style={{ background: 'linear-gradient(135deg, #0a2540 0%, #0d3a5c 35%, #115073 65%, #0d3a5c 100%)' }}>
+    <div className="relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #0a2540 0%, #0d3a5c 35%, #115073 65%, #0d3a5c 100%)' }}>
       {/* Animated Background Canvas */}
       <canvas
         ref={canvasRef}
-        className="fixed top-0 left-0 w-full h-full pointer-events-none"
-        style={{ zIndex: 1 }}
+        className="absolute top-0 left-0 w-full pointer-events-none"
+        style={{ zIndex: 1, height: '100%' }}
       />
 
       {/* Main Content */}
@@ -363,7 +363,7 @@ const CybersecurityServices = () => {
           </motion.div>
         </div>
       </section>
-      </div>
+        </div>
     </div>
   );
 };
