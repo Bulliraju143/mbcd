@@ -1,9 +1,187 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 
 const About = () => {
+  const canvasRef = useRef(null);
+
+  // ANIMATED NETWORK BACKGROUND - Same as Home
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    let animationFrameId;
+    
+    const resizeCanvas = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+    resizeCanvas();
+
+    class NetworkNode {
+      constructor() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.vx = (Math.random() - 0.5) * 0.8;
+        this.vy = (Math.random() - 0.5) * 0.8;
+        this.radius = Math.random() * 2.5 + 1;
+        this.pulsePhase = Math.random() * Math.PI * 2;
+      }
+
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+        
+        if (this.x < 0) this.x = canvas.width;
+        if (this.x > canvas.width) this.x = 0;
+        if (this.y < 0) this.y = canvas.height;
+        if (this.y > canvas.height) this.y = 0;
+        
+        this.pulsePhase += 0.03;
+      }
+
+      draw() {
+        const pulse = Math.sin(this.pulsePhase) * 0.5 + 0.5;
+        const size = this.radius + pulse * 1.5;
+        
+        ctx.shadowBlur = 8 + pulse * 4;
+        ctx.shadowColor = '#00a8c0';
+        
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, size, 0, Math.PI * 2);
+        
+        const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, size);
+        gradient.addColorStop(0, `rgba(0, 210, 230, ${0.6 + pulse * 0.15})`);
+        gradient.addColorStop(0.5, `rgba(0, 180, 200, ${0.4 + pulse * 0.15})`);
+        gradient.addColorStop(1, 'rgba(0, 150, 180, 0)');
+        
+        ctx.fillStyle = gradient;
+        ctx.fill();
+        ctx.shadowBlur = 0;
+      }
+    }
+
+    class FlowingLine {
+      constructor() {
+        this.reset();
+      }
+
+      reset() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.length = Math.random() * 100 + 50;
+        this.angle = Math.random() * Math.PI * 2;
+        this.speed = Math.random() * 2 + 1;
+        this.life = 0;
+        this.maxLife = Math.random() * 60 + 40;
+      }
+
+      update() {
+        this.x += Math.cos(this.angle) * this.speed;
+        this.y += Math.sin(this.angle) * this.speed;
+        this.life++;
+        
+        if (this.life > this.maxLife || 
+            this.x < -100 || this.x > canvas.width + 100 ||
+            this.y < -100 || this.y > canvas.height + 100) {
+          this.reset();
+        }
+      }
+
+      draw() {
+        const lifeRatio = this.life / this.maxLife;
+        const opacity = Math.sin(lifeRatio * Math.PI) * 0.25;
+        
+        ctx.beginPath();
+        ctx.moveTo(this.x, this.y);
+        ctx.lineTo(
+          this.x - Math.cos(this.angle) * this.length,
+          this.y - Math.sin(this.angle) * this.length
+        );
+        
+        const gradient = ctx.createLinearGradient(
+          this.x, this.y,
+          this.x - Math.cos(this.angle) * this.length,
+          this.y - Math.sin(this.angle) * this.length
+        );
+        gradient.addColorStop(0, `rgba(0, 200, 220, ${opacity})`);
+        gradient.addColorStop(1, 'rgba(0, 200, 220, 0)');
+        
+        ctx.strokeStyle = gradient;
+        ctx.lineWidth = 1.5;
+        ctx.shadowBlur = 5;
+        ctx.shadowColor = 'rgba(0, 180, 200, 0.2)';
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+      }
+    }
+
+    const nodes = [];
+    const nodeCount = 60;
+    for (let i = 0; i < nodeCount; i++) {
+      nodes.push(new NetworkNode());
+    }
+
+    const flowingLines = [];
+    for (let i = 0; i < 12; i++) {
+      flowingLines.push(new FlowingLine());
+    }
+
+    function drawConnections() {
+      for (let i = 0; i < nodes.length; i++) {
+        for (let j = i + 1; j < nodes.length; j++) {
+          const dx = nodes[i].x - nodes[j].x;
+          const dy = nodes[i].y - nodes[j].y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+
+          if (distance < 180) {
+            ctx.beginPath();
+            ctx.moveTo(nodes[i].x, nodes[i].y);
+            ctx.lineTo(nodes[j].x, nodes[j].y);
+            
+            const opacity = (1 - distance / 180) * 0.2;
+            const gradient = ctx.createLinearGradient(nodes[i].x, nodes[i].y, nodes[j].x, nodes[j].y);
+            gradient.addColorStop(0, `rgba(0, 200, 180, ${opacity})`);
+            gradient.addColorStop(1, `rgba(0, 180, 200, ${opacity})`);
+            
+            ctx.strokeStyle = gradient;
+            ctx.lineWidth = 1;
+            ctx.shadowBlur = 3;
+            ctx.shadowColor = 'rgba(0, 180, 200, 0.1)';
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+          }
+        }
+      }
+    }
+
+    function animate() {
+      ctx.fillStyle = 'rgba(10, 37, 64, 0.12)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      flowingLines.forEach(line => {
+        line.update();
+        line.draw();
+      });
+      
+      nodes.forEach(node => {
+        node.update();
+        node.draw();
+      });
+      drawConnections();
+      animationFrameId = requestAnimationFrame(animate);
+    }
+
+    animate();
+    window.addEventListener('resize', resizeCanvas);
+
+    return () => {
+      window.removeEventListener('resize', resizeCanvas);
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, []);
   const reasons = [
     {
       title: 'Market Research',
@@ -89,7 +267,16 @@ const About = () => {
   };
 
   return (
-    <div className="relative pt-32 pb-20">
+    <div className="relative min-h-screen overflow-hidden" style={{ background: 'linear-gradient(135deg, #0a2540 0%, #0d3a5c 35%, #115073 65%, #0d3a5c 100%)' }}>
+      {/* Animated Background Canvas */}
+      <canvas
+        ref={canvasRef}
+        className="fixed top-0 left-0 w-full h-full pointer-events-none"
+        style={{ zIndex: 1 }}
+      />
+
+      {/* Main Content */}
+      <div className="relative pt-32 pb-20" style={{ zIndex: 10 }}>
       {/* Page Header */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-20">
         <motion.div
@@ -198,6 +385,7 @@ const About = () => {
           </div>
         </motion.div>
       </section>
+      </div>
     </div>
   );
 };

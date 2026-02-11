@@ -188,8 +188,8 @@ const Home = () => {
       constructor() {
         this.x = Math.random() * canvas.width;
         this.y = Math.random() * canvas.height;
-        this.vx = (Math.random() - 0.5) * 0.5;
-        this.vy = (Math.random() - 0.5) * 0.5;
+        this.vx = (Math.random() - 0.5) * 0.8;
+        this.vy = (Math.random() - 0.5) * 0.8;
         this.radius = Math.random() * 2.5 + 1;
         this.pulsePhase = Math.random() * Math.PI * 2;
       }
@@ -197,8 +197,13 @@ const Home = () => {
       update() {
         this.x += this.vx;
         this.y += this.vy;
-        if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
-        if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+        
+        // Wrap around edges for continuous flow
+        if (this.x < 0) this.x = canvas.width;
+        if (this.x > canvas.width) this.x = 0;
+        if (this.y < 0) this.y = canvas.height;
+        if (this.y > canvas.height) this.y = 0;
+        
         this.pulsePhase += 0.03;
       }
 
@@ -206,16 +211,16 @@ const Home = () => {
         const pulse = Math.sin(this.pulsePhase) * 0.5 + 0.5;
         const size = this.radius + pulse * 1.5;
         
-        ctx.shadowBlur = 12 + pulse * 8;
-        ctx.shadowColor = '#00d4ff';
+        ctx.shadowBlur = 8 + pulse * 4; // Reduced from 12 + pulse * 8
+        ctx.shadowColor = '#00a8c0'; // Less bright cyan
         
         ctx.beginPath();
         ctx.arc(this.x, this.y, size, 0, Math.PI * 2);
         
         const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, size);
-        gradient.addColorStop(0, `rgba(0, 255, 255, ${0.8 + pulse * 0.2})`);
-        gradient.addColorStop(0.5, `rgba(0, 212, 255, ${0.6 + pulse * 0.2})`);
-        gradient.addColorStop(1, 'rgba(0, 180, 216, 0)');
+        gradient.addColorStop(0, `rgba(0, 210, 230, ${0.6 + pulse * 0.15})`); // Reduced opacity
+        gradient.addColorStop(0.5, `rgba(0, 180, 200, ${0.4 + pulse * 0.15})`); // Reduced opacity
+        gradient.addColorStop(1, 'rgba(0, 150, 180, 0)');
         
         ctx.fillStyle = gradient;
         ctx.fill();
@@ -223,10 +228,71 @@ const Home = () => {
       }
     }
 
+    // Flowing line class for dynamic electric-like effects
+    class FlowingLine {
+      constructor() {
+        this.reset();
+      }
+
+      reset() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.length = Math.random() * 100 + 50;
+        this.angle = Math.random() * Math.PI * 2;
+        this.speed = Math.random() * 2 + 1;
+        this.life = 0;
+        this.maxLife = Math.random() * 60 + 40;
+      }
+
+      update() {
+        this.x += Math.cos(this.angle) * this.speed;
+        this.y += Math.sin(this.angle) * this.speed;
+        this.life++;
+        
+        if (this.life > this.maxLife || 
+            this.x < -100 || this.x > canvas.width + 100 ||
+            this.y < -100 || this.y > canvas.height + 100) {
+          this.reset();
+        }
+      }
+
+      draw() {
+        const lifeRatio = this.life / this.maxLife;
+        const opacity = Math.sin(lifeRatio * Math.PI) * 0.25; // Reduced from 0.5 to 0.25
+        
+        ctx.beginPath();
+        ctx.moveTo(this.x, this.y);
+        ctx.lineTo(
+          this.x - Math.cos(this.angle) * this.length,
+          this.y - Math.sin(this.angle) * this.length
+        );
+        
+        const gradient = ctx.createLinearGradient(
+          this.x, this.y,
+          this.x - Math.cos(this.angle) * this.length,
+          this.y - Math.sin(this.angle) * this.length
+        );
+        gradient.addColorStop(0, `rgba(0, 200, 220, ${opacity})`); // Reduced intensity
+        gradient.addColorStop(1, 'rgba(0, 200, 220, 0)');
+        
+        ctx.strokeStyle = gradient;
+        ctx.lineWidth = 1.5; // Reduced from 2
+        ctx.shadowBlur = 5; // Reduced from 10
+        ctx.shadowColor = 'rgba(0, 180, 200, 0.2)'; // Reduced from 0.4
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+      }
+    }
+
     const nodes = [];
-    const nodeCount = 50;
+    const nodeCount = 60;
     for (let i = 0; i < nodeCount; i++) {
       nodes.push(new NetworkNode());
+    }
+
+    const flowingLines = [];
+    for (let i = 0; i < 12; i++) {
+      flowingLines.push(new FlowingLine());
     }
 
     function drawConnections() {
@@ -241,21 +307,33 @@ const Home = () => {
             ctx.moveTo(nodes[i].x, nodes[i].y);
             ctx.lineTo(nodes[j].x, nodes[j].y);
             
-            const opacity = (1 - distance / 180) * 0.3;
+            const opacity = (1 - distance / 180) * 0.2; // Reduced from 0.35
             const gradient = ctx.createLinearGradient(nodes[i].x, nodes[i].y, nodes[j].x, nodes[j].y);
-            gradient.addColorStop(0, `rgba(0, 255, 159, ${opacity})`);
-            gradient.addColorStop(1, `rgba(0, 212, 255, ${opacity})`);
+            gradient.addColorStop(0, `rgba(0, 200, 180, ${opacity})`); // Less bright
+            gradient.addColorStop(1, `rgba(0, 180, 200, ${opacity})`);
             
             ctx.strokeStyle = gradient;
-            ctx.lineWidth = 1.5;
+            ctx.lineWidth = 1; // Reduced from 1.5
+            ctx.shadowBlur = 3; // Reduced from 6
+            ctx.shadowColor = 'rgba(0, 180, 200, 0.1)'; // Reduced from 0.2
             ctx.stroke();
+            ctx.shadowBlur = 0;
           }
         }
       }
     }
 
     function animate() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      // Slight trail effect for smoother animation
+      ctx.fillStyle = 'rgba(10, 37, 64, 0.12)'; // Updated to match darker blue background
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      // Update and draw flowing lines
+      flowingLines.forEach(line => {
+        line.update();
+        line.draw();
+      });
+      
       nodes.forEach(node => {
         node.update();
         node.draw();
@@ -646,7 +724,7 @@ const Home = () => {
   }, []);
 
   return (
-    <div className="relative min-h-screen overflow-hidden" style={{ background: 'linear-gradient(to bottom right, #020617, #0f172a, #020617)' }}>
+    <div className="relative min-h-screen overflow-hidden" style={{ background: 'linear-gradient(135deg, #0a2540 0%, #0d3a5c 35%, #115073 65%, #0d3a5c 100%)' }}>
       {/* PROFESSIONAL CINEMATIC ENTRANCE */}
       <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 10 }}>
         {/* Elegant fade from white */}
@@ -747,24 +825,42 @@ const Home = () => {
         style={{ zIndex: 0 }}
       />
 
-      {/* Space-themed Planets Background - Left and Right Sides */}
+      {/* Network Grid Background + Small Subtle Planets */}
       <div className="fixed top-0 left-0 w-full h-full pointer-events-none overflow-hidden" style={{ zIndex: 0 }}>
-        {/* Left Side Planets */}
+        {/* Animated Cyber Network Grid - Like Image 1 */}
+        <div
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            backgroundImage: `
+              linear-gradient(rgba(0, 212, 255, 0.08) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(0, 212, 255, 0.08) 1px, transparent 1px)
+            `,
+            backgroundSize: '50px 50px',
+            animation: 'gridMove 30s linear infinite',
+          }}
+        />
+
+        {/* Small Subtle Planets on Left Side - kanipinchi kanipinchakunda */}
         <motion.div
           className="absolute"
           style={{
-            left: '-5%',
+            left: '-3%',
             top: '10%',
-            width: '200px',
-            height: '200px',
+            width: '150px',
+            height: '150px',
+            opacity: 0.25,
           }}
           animate={{
-            y: [0, -30, 0],
-            x: [0, 15, 0],
+            y: [0, -20, 0],
+            x: [0, 10, 0],
             rotate: [0, 360],
           }}
           transition={{
-            duration: 25,
+            duration: 50,
             repeat: Infinity,
             ease: "linear"
           }}
@@ -774,23 +870,22 @@ const Home = () => {
               width: '100%',
               height: '100%',
               borderRadius: '50%',
-              background: 'radial-gradient(circle at 30% 30%, #00ffff 0%, #00d4ff 50%, #0099cc 100%)',
-              boxShadow: '0 0 80px rgba(0, 255, 255, 0.8), inset -20px -20px 40px rgba(0, 0, 0, 0.3)',
+              background: 'radial-gradient(circle at 30% 30%, rgba(0, 255, 255, 0.3) 0%, rgba(0, 212, 255, 0.2) 50%, rgba(0, 180, 216, 0.1) 100%)',
+              boxShadow: '0 0 30px rgba(0, 255, 255, 0.1)',
+              filter: 'blur(1px)',
               position: 'relative'
             }}
           >
-            {/* Planet rings */}
             <div
               style={{
                 position: 'absolute',
                 top: '50%',
                 left: '50%',
                 transform: 'translate(-50%, -50%) rotateX(75deg)',
-                width: '280px',
-                height: '280px',
-                border: '8px solid rgba(0, 255, 255, 0.4)',
+                width: '200px',
+                height: '200px',
+                border: '5px solid rgba(0, 255, 255, 0.08)',
                 borderRadius: '50%',
-                boxShadow: '0 0 30px rgba(0, 255, 255, 0.6)'
               }}
             />
           </div>
@@ -801,16 +896,17 @@ const Home = () => {
           style={{
             left: '2%',
             top: '55%',
-            width: '120px',
-            height: '120px',
+            width: '90px',
+            height: '90px',
+            opacity: 0.22,
           }}
           animate={{
-            y: [0, 40, 0],
-            x: [0, -20, 0],
+            y: [0, 25, 0],
+            x: [0, -12, 0],
             rotate: [0, -360],
           }}
           transition={{
-            duration: 30,
+            duration: 42,
             repeat: Infinity,
             ease: "linear"
           }}
@@ -820,8 +916,9 @@ const Home = () => {
               width: '100%',
               height: '100%',
               borderRadius: '50%',
-              background: 'radial-gradient(circle at 35% 35%, #5ddbff 0%, #00b8ff 50%, #0088cc 100%)',
-              boxShadow: '0 0 60px rgba(93, 219, 255, 0.7), inset -15px -15px 30px rgba(0, 0, 0, 0.4)',
+              background: 'radial-gradient(circle at 35% 35%, rgba(93, 219, 255, 0.28) 0%, rgba(0, 212, 255, 0.18) 50%, rgba(0, 180, 216, 0.1) 100%)',
+              boxShadow: '0 0 25px rgba(0, 229, 255, 0.08)',
+              filter: 'blur(1.2px)',
             }}
           />
         </motion.div>
@@ -829,18 +926,19 @@ const Home = () => {
         <motion.div
           className="absolute"
           style={{
-            left: '-3%',
-            top: '75%',
-            width: '150px',
-            height: '150px',
+            left: '6%',
+            top: '18%',
+            width: '65px',
+            height: '65px',
+            opacity: 0.2,
           }}
           animate={{
-            y: [0, -35, 0],
-            x: [0, 18, 0],
+            y: [0, -12, 0],
+            x: [0, 7, 0],
             rotate: [0, 360],
           }}
           transition={{
-            duration: 28,
+            duration: 38,
             repeat: Infinity,
             ease: "linear"
           }}
@@ -850,28 +948,29 @@ const Home = () => {
               width: '100%',
               height: '100%',
               borderRadius: '50%',
-              background: 'radial-gradient(circle at 40% 30%, #33ddff 0%, #00c4ff 50%, #0099dd 100%)',
-              boxShadow: '0 0 70px rgba(51, 221, 255, 0.6), inset -18px -18px 35px rgba(0, 0, 0, 0.35)',
+              background: 'radial-gradient(circle at 32% 30%, rgba(255, 140, 105, 0.25) 0%, rgba(255, 99, 71, 0.16) 50%, rgba(205, 92, 92, 0.08) 100%)',
+              boxShadow: '0 0 20px rgba(255, 107, 53, 0.06)',
+              filter: 'blur(1.3px)',
             }}
           />
         </motion.div>
 
-        {/* Right Side Planets */}
         <motion.div
           className="absolute"
           style={{
-            right: '-4%',
-            top: '15%',
-            width: '180px',
-            height: '180px',
+            left: '-1%',
+            bottom: '22%',
+            width: '120px',
+            height: '120px',
+            opacity: 0.23,
           }}
           animate={{
-            y: [0, 35, 0],
-            x: [0, -18, 0],
-            rotate: [0, -360],
+            y: [0, -22, 0],
+            x: [0, 13, 0],
+            rotate: [0, 360],
           }}
           transition={{
-            duration: 27,
+            duration: 45,
             repeat: Infinity,
             ease: "linear"
           }}
@@ -881,8 +980,42 @@ const Home = () => {
               width: '100%',
               height: '100%',
               borderRadius: '50%',
-              background: 'radial-gradient(circle at 35% 25%, #80e5ff 0%, #00ccff 50%, #0099dd 100%)',
-              boxShadow: '0 0 75px rgba(128, 229, 255, 0.7), inset -17px -17px 34px rgba(0, 0, 0, 0.3)',
+              background: 'radial-gradient(circle at 40% 30%, rgba(51, 221, 255, 0.26) 0%, rgba(0, 196, 255, 0.17) 50%, rgba(0, 153, 221, 0.09) 100%)',
+              boxShadow: '0 0 28px rgba(51, 221, 255, 0.07)',
+              filter: 'blur(1.1px)',
+            }}
+          />
+        </motion.div>
+
+        {/* Small Subtle Planets on Right Side */}
+        <motion.div
+          className="absolute"
+          style={{
+            right: '-2%',
+            top: '15%',
+            width: '140px',
+            height: '140px',
+            opacity: 0.24,
+          }}
+          animate={{
+            y: [0, 23, 0],
+            x: [0, -11, 0],
+            rotate: [0, -360],
+          }}
+          transition={{
+            duration: 48,
+            repeat: Infinity,
+            ease: "linear"
+          }}
+        >
+          <div
+            style={{
+              width: '100%',
+              height: '100%',
+              borderRadius: '50%',
+              background: 'radial-gradient(circle at 35% 25%, rgba(128, 229, 255, 0.28) 0%, rgba(0, 204, 255, 0.19) 50%, rgba(0, 153, 221, 0.1) 100%)',
+              boxShadow: '0 0 32px rgba(128, 229, 255, 0.09)',
+              filter: 'blur(1px)',
             }}
           />
         </motion.div>
@@ -892,16 +1025,17 @@ const Home = () => {
           style={{
             right: '1%',
             top: '50%',
-            width: '220px',
-            height: '220px',
+            width: '180px',
+            height: '180px',
+            opacity: 0.26,
           }}
           animate={{
-            y: [0, -40, 0],
-            x: [0, 20, 0],
+            y: [0, -28, 0],
+            x: [0, 14, 0],
             rotate: [0, 360],
           }}
           transition={{
-            duration: 32,
+            duration: 52,
             repeat: Infinity,
             ease: "linear"
           }}
@@ -911,23 +1045,22 @@ const Home = () => {
               width: '100%',
               height: '100%',
               borderRadius: '50%',
-              background: 'radial-gradient(circle at 30% 30%, #00e5ff 0%, #00b8ff 50%, #0088cc 100%)',
-              boxShadow: '0 0 90px rgba(0, 229, 255, 0.8), inset -22px -22px 44px rgba(0, 0, 0, 0.35)',
+              background: 'radial-gradient(circle at 30% 30%, rgba(0, 229, 255, 0.29) 0%, rgba(0, 184, 255, 0.2) 50%, rgba(0, 136, 204, 0.11) 100%)',
+              boxShadow: '0 0 35px rgba(0, 229, 255, 0.1)',
+              filter: 'blur(0.9px)',
               position: 'relative'
             }}
           >
-            {/* Planet rings */}
             <div
               style={{
                 position: 'absolute',
                 top: '50%',
                 left: '50%',
                 transform: 'translate(-50%, -50%) rotateX(70deg)',
-                width: '320px',
-                height: '320px',
-                border: '10px solid rgba(0, 229, 255, 0.35)',
+                width: '250px',
+                height: '250px',
+                border: '6px solid rgba(0, 229, 255, 0.07)',
                 borderRadius: '50%',
-                boxShadow: '0 0 35px rgba(0, 229, 255, 0.5)'
               }}
             />
             <div
@@ -936,11 +1069,10 @@ const Home = () => {
                 top: '50%',
                 left: '50%',
                 transform: 'translate(-50%, -50%) rotateX(70deg)',
-                width: '360px',
-                height: '360px',
-                border: '6px solid rgba(0, 229, 255, 0.25)',
+                width: '280px',
+                height: '280px',
+                border: '4px solid rgba(0, 229, 255, 0.05)',
                 borderRadius: '50%',
-                boxShadow: '0 0 25px rgba(0, 229, 255, 0.4)'
               }}
             />
           </div>
@@ -949,18 +1081,19 @@ const Home = () => {
         <motion.div
           className="absolute"
           style={{
-            right: '-2%',
-            top: '78%',
-            width: '140px',
-            height: '140px',
+            right: '-1%',
+            bottom: '20%',
+            width: '110px',
+            height: '110px',
+            opacity: 0.21,
           }}
           animate={{
-            y: [0, 30, 0],
-            x: [0, -15, 0],
+            y: [0, 18, 0],
+            x: [0, -9, 0],
             rotate: [0, -360],
           }}
           transition={{
-            duration: 26,
+            duration: 40,
             repeat: Infinity,
             ease: "linear"
           }}
@@ -970,244 +1103,30 @@ const Home = () => {
               width: '100%',
               height: '100%',
               borderRadius: '50%',
-              background: 'radial-gradient(circle at 38% 28%, #00f2ff 0%, #00c4ff 50%, #0088cc 100%)',
-              boxShadow: '0 0 65px rgba(0, 242, 255, 0.7), inset -16px -16px 32px rgba(0, 0, 0, 0.4)',
+              background: 'radial-gradient(circle at 38% 28%, rgba(0, 242, 255, 0.27) 0%, rgba(0, 196, 255, 0.18) 50%, rgba(0, 136, 204, 0.09) 100%)',
+              boxShadow: '0 0 26px rgba(0, 242, 255, 0.08)',
+              filter: 'blur(1.2px)',
             }}
           />
         </motion.div>
 
-        {/* RED MARS PLANETS - Randomly distributed across entire screen */}
-        {/* Large Red Mars - Top Right Area */}
+        {/* Red/Orange Planets - Small and Subtle */}
         <motion.div
           className="absolute"
           style={{
             right: '10%',
             top: '8%',
-            width: '110px',
-            height: '110px',
-            opacity: 0.75,
-          }}
-          animate={{
-            y: [0, 22, 0],
-            x: [0, -10, 0],
-            rotate: [0, -360],
-          }}
-          transition={{
-            duration: 35,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-        >
-          <div
-            style={{
-              width: '100%',
-              height: '100%',
-              borderRadius: '50%',
-              background: 'radial-gradient(circle at 30% 25%, #ff8c69 0%, #ff6347 40%, #dc143c 75%, #b22222 100%)',
-              boxShadow: '0 0 50px rgba(255, 69, 0, 0.4), inset -14px -14px 28px rgba(0, 0, 0, 0.4)',
-              position: 'relative',
-              filter: 'blur(0.3px)'
-            }}
-          >
-            {/* Mars craters */}
-            <div style={{
-              position: 'absolute',
-              top: '25%',
-              left: '35%',
-              width: '15px',
-              height: '15px',
-              borderRadius: '50%',
-              background: 'rgba(0, 0, 0, 0.22)',
-              boxShadow: 'inset 1px 1px 3px rgba(0, 0, 0, 0.3)'
-            }} />
-            <div style={{
-              position: 'absolute',
-              top: '60%',
-              left: '55%',
-              width: '11px',
-              height: '11px',
-              borderRadius: '50%',
-              background: 'rgba(0, 0, 0, 0.18)',
-            }} />
-            <div style={{
-              position: 'absolute',
-              top: '48%',
-              left: '22%',
-              width: '8px',
-              height: '8px',
-              borderRadius: '50%',
-              background: 'rgba(0, 0, 0, 0.15)'
-            }} />
-          </div>
-        </motion.div>
-
-        {/* Medium Red Mars - Left Top */}
-        <motion.div
-          className="absolute"
-          style={{
-            left: '7%',
-            top: '15%',
-            width: '95px',
-            height: '95px',
-            opacity: 0.72,
-          }}
-          animate={{
-            y: [0, -18, 0],
-            x: [0, 10, 0],
-            rotate: [0, 360],
-          }}
-          transition={{
-            duration: 30,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-        >
-          <div
-            style={{
-              width: '100%',
-              height: '100%',
-              borderRadius: '50%',
-              background: 'radial-gradient(circle at 32% 30%, #ff9966 0%, #ff6347 38%, #cd5c5c 72%, #a0522d 100%)',
-              boxShadow: '0 0 45px rgba(255, 99, 71, 0.42), inset -12px -12px 24px rgba(0, 0, 0, 0.38)',
-              position: 'relative',
-              filter: 'blur(0.3px)'
-            }}
-          >
-            <div style={{
-              position: 'absolute',
-              top: '30%',
-              left: '40%',
-              width: '13px',
-              height: '13px',
-              borderRadius: '50%',
-              background: 'rgba(0, 0, 0, 0.21)'
-            }} />
-            <div style={{
-              position: 'absolute',
-              top: '58%',
-              left: '58%',
-              width: '10px',
-              height: '10px',
-              borderRadius: '50%',
-              background: 'rgba(0, 0, 0, 0.17)'
-            }} />
-          </div>
-        </motion.div>
-
-        {/* Coral Planet - Left Middle-Bottom */}
-        <motion.div
-          className="absolute"
-          style={{
-            left: '4%',
-            top: '62%',
-            width: '78px',
-            height: '78px',
-            opacity: 0.66,
-          }}
-          animate={{
-            y: [0, 20, 0],
-            x: [0, -8, 0],
-            rotate: [0, 360],
-          }}
-          transition={{
-            duration: 27,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-        >
-          <div
-            style={{
-              width: '100%',
-              height: '100%',
-              borderRadius: '50%',
-              background: 'radial-gradient(circle at 28% 28%, #ff9980 0%, #ff7f50 42%, #e9967a 80%, #cd5c5c 100%)',
-              boxShadow: '0 0 40px rgba(255, 127, 80, 0.38), inset -10px -10px 20px rgba(0, 0, 0, 0.36)',
-              position: 'relative',
-              filter: 'blur(0.3px)'
-            }}
-          >
-            <div style={{
-              position: 'absolute',
-              top: '36%',
-              left: '46%',
-              width: '10px',
-              height: '10px',
-              borderRadius: '50%',
-              background: 'rgba(0, 0, 0, 0.19)'
-            }} />
-            <div style={{
-              position: 'absolute',
-              top: '60%',
-              left: '28%',
-              width: '7px',
-              height: '7px',
-              borderRadius: '50%',
-              background: 'rgba(0, 0, 0, 0.15)'
-            }} />
-          </div>
-        </motion.div>
-
-        {/* Small Red-Orange - Right Middle */}
-        <motion.div
-          className="absolute"
-          style={{
-            right: '6%',
-            top: '45%',
-            width: '68px',
-            height: '68px',
-            opacity: 0.63,
-          }}
-          animate={{
-            y: [0, -16, 0],
-            x: [0, 9, 0],
-            rotate: [360, 0],
-          }}
-          transition={{
-            duration: 25,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-        >
-          <div
-            style={{
-              width: '100%',
-              height: '100%',
-              borderRadius: '50%',
-              background: 'radial-gradient(circle at 30% 30%, #ffa07a 0%, #ff8c69 45%, #cd5c5c 85%, #8b4513 100%)',
-              boxShadow: '0 0 36px rgba(205, 92, 92, 0.36), inset -9px -9px 18px rgba(0, 0, 0, 0.36)',
-              position: 'relative',
-              filter: 'blur(0.3px)'
-            }}
-          >
-            <div style={{
-              position: 'absolute',
-              top: '38%',
-              left: '48%',
-              width: '9px',
-              height: '9px',
-              borderRadius: '50%',
-              background: 'rgba(0, 0, 0, 0.18)'
-            }} />
-          </div>
-        </motion.div>
-
-        {/* Tiny Red - Left Far Bottom */}
-        <motion.div
-          className="absolute"
-          style={{
-            left: '11%',
-            bottom: '10%',
-            width: '52px',
-            height: '52px',
-            opacity: 0.58,
+            width: '85px',
+            height: '85px',
+            opacity: 0.19,
           }}
           animate={{
             y: [0, 15, 0],
-            x: [0, -6, 0],
-            rotate: [0, 360],
+            x: [0, -7, 0],
+            rotate: [0, -360],
           }}
           transition={{
-            duration: 22,
+            duration: 44,
             repeat: Infinity,
             ease: "easeInOut"
           }}
@@ -1217,63 +1136,61 @@ const Home = () => {
               width: '100%',
               height: '100%',
               borderRadius: '50%',
-              background: 'radial-gradient(circle at 32% 28%, #ff6347 0%, #dc143c 50%, #8b0000 100%)',
-              boxShadow: '0 0 28px rgba(220, 20, 60, 0.32), inset -7px -7px 14px rgba(0, 0, 0, 0.32)',
-              filter: 'blur(0.3px)'
+              background: 'radial-gradient(circle at 30% 25%, rgba(255, 140, 105, 0.24) 0%, rgba(255, 99, 71, 0.15) 40%, rgba(220, 20, 60, 0.08) 75%, rgba(178, 34, 34, 0.05) 100%)',
+              boxShadow: '0 0 22px rgba(255, 69, 0, 0.06)',
+              filter: 'blur(1.4px)',
             }}
           />
         </motion.div>
 
-        {/* Small Orange-Red - Right Bottom */}
         <motion.div
           className="absolute"
           style={{
-            right: '12%',
+            left: '8%',
             bottom: '15%',
-            width: '62px',
-            height: '62px',
-            opacity: 0.60,
+            width: '70px',
+            height: '70px',
+            opacity: 0.17,
+          }}
+          animate={{
+            y: [0, -10, 0],
+            x: [0, 6, 0],
+            rotate: [0, 360],
+          }}
+          transition={{
+            duration: 36,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        >
+          <div
+            style={{
+              width: '100%',
+              height: '100%',
+              borderRadius: '50%',
+              background: 'radial-gradient(circle at 28% 28%, rgba(255, 160, 122, 0.22) 0%, rgba(255, 127, 80, 0.14) 42%, rgba(205, 92, 92, 0.07) 76%, rgba(139, 69, 19, 0.04) 100%)',
+              boxShadow: '0 0 18px rgba(250, 128, 114, 0.05)',
+              filter: 'blur(1.5px)',
+            }}
+          />
+        </motion.div>
+
+        <motion.div
+          className="absolute"
+          style={{
+            right: '8%',
+            bottom: '25%',
+            width: '75px',
+            height: '75px',
+            opacity: 0.18,
           }}
           animate={{
             y: [0, -13, 0],
-            x: [0, 7, 0],
-            rotate: [0, -360],
-          }}
-          transition={{
-            duration: 24,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-        >
-          <div
-            style={{
-              width: '100%',
-              height: '100%',
-              borderRadius: '50%',
-              background: 'radial-gradient(circle at 30% 30%, #ff8c42 0%, #ff7f50 48%, #cd5c5c 100%)',
-              boxShadow: '0 0 32px rgba(255, 127, 80, 0.34), inset -8px -8px 16px rgba(0, 0, 0, 0.34)',
-              filter: 'blur(0.3px)'
-            }}
-          />
-        </motion.div>
-
-        {/* Mini Rust Planet - Left Upper Middle */}
-        <motion.div
-          className="absolute"
-          style={{
-            left: '15%',
-            top: '35%',
-            width: '48px',
-            height: '48px',
-            opacity: 0.54,
-          }}
-          animate={{
-            y: [0, 12, 0],
-            x: [0, -5, 0],
+            x: [0, 8, 0],
             rotate: [0, 360],
           }}
           transition={{
-            duration: 20,
+            duration: 41,
             repeat: Infinity,
             ease: "easeInOut"
           }}
@@ -1283,106 +1200,13 @@ const Home = () => {
               width: '100%',
               height: '100%',
               borderRadius: '50%',
-              background: 'radial-gradient(circle at 28% 28%, #d2691e 0%, #a0522d 55%, #8b4513 100%)',
-              boxShadow: '0 0 26px rgba(160, 82, 45, 0.30), inset -6px -6px 12px rgba(0, 0, 0, 0.30)',
-              filter: 'blur(0.3px)'
+              background: 'radial-gradient(circle at 34% 32%, rgba(255, 140, 105, 0.23) 0%, rgba(255, 99, 71, 0.14) 40%, rgba(205, 92, 92, 0.08) 70%, rgba(160, 82, 45, 0.04) 100%)',
+              boxShadow: '0 0 20px rgba(255, 99, 71, 0.05)',
+              filter: 'blur(1.4px)',
             }}
           />
         </motion.div>
-
-        {/* Micro Dark Red - Right Top Far */}
-        <motion.div
-          className="absolute"
-          style={{
-            right: '18%',
-            top: '18%',
-            width: '44px',
-            height: '44px',
-            opacity: 0.50,
-          }}
-          animate={{
-            y: [0, -11, 0],
-            x: [0, 5, 0],
-            rotate: [0, -360],
-          }}
-          transition={{
-            duration: 19,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-        >
-          <div
-            style={{
-              width: '100%',
-              height: '100%',
-              borderRadius: '50%',
-              background: 'radial-gradient(circle at 30% 30%, #cd5c5c 0%, #b22222 52%, #800000 100%)',
-              boxShadow: '0 0 24px rgba(178, 34, 34, 0.28), inset -5px -5px 10px rgba(0, 0, 0, 0.28)',
-              filter: 'blur(0.3px)'
-            }}
-          />
-        </motion.div>
-
-        {/* Tiny Distant Red - Left Top Far */}
-        <motion.div
-          className="absolute"
-          style={{
-            left: '3%',
-            top: '8%',
-            width: '38px',
-            height: '38px',
-            opacity: 0.46,
-          }}
-          animate={{
-            y: [0, 10, 0],
-            x: [0, -4, 0],
-            rotate: [0, 360],
-          }}
-          transition={{
-            duration: 17,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-        >
-          <div
-            style={{
-              width: '100%',
-              height: '100%',
-              borderRadius: '50%',
-              background: 'radial-gradient(circle at 32% 30%, #ff6347 0%, #dc143c 58%, #8b0000 100%)',
-              boxShadow: '0 0 20px rgba(220, 20, 60, 0.25), inset -4px -4px 8px rgba(0, 0, 0, 0.26)',
-              filter: 'blur(0.3px)'
-            }}
-          />
-        </motion.div>
-        {/* Small floating stars/particles around planets */}
-        {[...Array(15)].map((_, i) => (
-          <motion.div
-            key={`star-${i}`}
-            className="absolute"
-            style={{
-              left: `${i < 8 ? Math.random() * 15 : 85 + Math.random() * 15}%`,
-              top: `${Math.random() * 100}%`,
-              width: `${Math.random() * 4 + 2}px`,
-              height: `${Math.random() * 4 + 2}px`,
-              borderRadius: '50%',
-              background: 'radial-gradient(circle, rgba(255, 255, 255, 0.9) 0%, rgba(0, 212, 255, 0.5) 100%)',
-              boxShadow: '0 0 10px rgba(255, 255, 255, 0.8)',
-            }}
-            animate={{
-              opacity: [0.3, 1, 0.3],
-              scale: [1, 1.5, 1],
-            }}
-            transition={{
-              duration: Math.random() * 3 + 2,
-              repeat: Infinity,
-              ease: "easeInOut",
-              delay: Math.random() * 2
-            }}
-          />
-        ))}
       </div>
-
       {/* Hero Section with Two-Column Layout */}
       <motion.section 
         className="relative min-h-screen flex items-center justify-center pt-24 pb-20 px-6"
@@ -2152,6 +1976,15 @@ const Home = () => {
           50% {
             opacity: 1;
             transform: scale(1.2);
+          }
+        }
+
+        @keyframes gridMove {
+          0% {
+            transform: translate(0, 0);
+          }
+          100% {
+            transform: translate(50px, 50px);
           }
         }
       `}</style>
