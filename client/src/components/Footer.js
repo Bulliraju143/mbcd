@@ -130,6 +130,7 @@ const Footer = () => {
               {[
                 { name: 'Home', path: '/' },
                 { name: 'Cybersecurity & Services', path: '/cybersecurity-services' },
+                { name: 'Cyber Education', path: '/cyber-education' },
                 { name: 'About us', path: '/about' }
               ].map((link, index) => (
                 <motion.li 

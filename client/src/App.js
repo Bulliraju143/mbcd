@@ -6,6 +6,7 @@ import Home from './pages/Home';
 import CybersecurityServices from './pages/CybersecurityServices';
 import About from './pages/About';
 import Contact from './pages/Contact';
+import CyberEducation from './pages/CyberEducation';
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/cybersecurity-services" element={<CybersecurityServices />} />
+          <Route path="/cyber-education" element={<CyberEducation />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
         </Routes>
